@@ -1,34 +1,50 @@
-import io.github.bonigarcia.wdm.WebDriverManager;
+package TestNG2.test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.Test;
+import TestNG2.pages.MainPage;
+import TestNG2.base.Base;
+import TestNG2.pages.ProPage;
 
-import java.time.Duration;
-import java.util.List;
+public class test extends Base{
 
-public class test {
-    public static void main(String[] args) throws InterruptedException {
-        WebDriverManager.chromedriver().setup();
-        WebDriver driver =new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-        driver.get("https://practicesoftwaretesting.com/");
-        List<WebElement> proimg=driver.findElements(By.className("card-img-top"));
-        System.out.println(proimg.size());
-        for(int i = 0 ;i<proimg.size();i++){
-            Thread.sleep(1000);
-            proimg.get(i).click();
-            Thread.sleep(1000);
-            try{
-                driver.findElement(By.id("btn-add-to-cart")).click();
-                driver.findElement(By.xpath("//*[contains(text(),'Product added')]")).click();
-                driver.navigate().back();
-            } catch (Exception e) {
-               System.out.println("the pro is " +driver.findElement(By.className("mt-3")).getText());
-                driver.navigate().back();
+
+    @Test
+    public void testadd() throws InterruptedException {
+        MainPage mainPage = new MainPage(driver);
+        ProPage proPage = new ProPage(driver);
+        mainPage.PriceSlider();
+
+        for(int x=0;x<6;x++) {
+            System.out.println("========================================================= LIST ("+(x+1)+") ========================================================= ");
+            mainPage.pagelist(x);
+            System.out.println("Number Of Products To Test: "+mainPage.getProList().size());
+            for (int i = 0; i < mainPage.getProList().size(); i++) {
+                mainPage.selectPro(i);
+                System.out.println("PRODUCT NUMBER" + "(" + (i + 1) + ")" + " IS: " + proPage.proname());
+                System.out.println("Has Been Selected Successfully");
+                try {
+                    proPage.AddToCart();
+                    System.out.println("Alert Says: " + proPage.alertWords());
+                    proPage.alertSkip();
+                    System.out.println();
+                    System.out.println("====================================");
+                    driver.navigate().back();
+                    mainPage.PriceSlider();
+                    mainPage.pagelist(x);
+                } catch (Exception e) {
+                    System.out.println("PRODUCT NAMED : " + proPage.proname());
+                    System.out.println("============= IS OUT OF STOCK =============");
+                    System.out.println();
+                    System.out.println("====================================");
+                    driver.navigate().back();
+                    mainPage.PriceSlider();
+                    mainPage.pagelist(x);
+                }
+
             }
-            proimg = driver.findElements(By.className("card-img-top"));
 
         }
     }
